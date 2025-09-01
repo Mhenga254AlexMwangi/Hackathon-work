@@ -9,7 +9,7 @@
         <label for="journalEntry">How are you feeling today?</label>
         <textarea id="journalEntry" name="journalEntry" placeholder="Express your thoughts and feelings here..." required></textarea>
         
-        <button class="btn" type="submit"><i class="fas fa-cloud-upload-alt"></i> Analyze Emotions</button>
+        <button class="btn" type="submit"><i class="fas fa-cloud-upload-alt"></i> Analyze & Save</button>
     </form>
     
     <div class="loading" id="loadingIndicator">
@@ -28,10 +28,6 @@
         
         <div class="emotion-results" id="emotionResults">
             <!-- Results will be inserted here by JavaScript -->
-        </div>
-        
-        <div style="margin-top: 30px;">
-            <button class="btn" id="saveEntryBtn"><i class="fas fa-save"></i> Save Journal Entry</button>
         </div>
     </div>
 </div>
@@ -54,29 +50,30 @@
         document.getElementById('apiWarning').style.display = 'none';
         
         try {
-            // Send journal entry to server for emotional analysis
+            // Send journal entry to Flask API
             const response = await fetch('{{ url_for("analyze_emotions") }}', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ journalText: journalText })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: journalText })  // ✅ fixed key
             });
             
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}: ${response.statusText}`);
             }
             
-            const emotionData = await response.json();
+            const result = await response.json();
             
-            // Display results
-            displayEmotionResults(emotionData);
+            if (result.success) {
+                displayEmotionResults(result.results);
+                alert("Journal entry analyzed and saved successfully!");
+            } else {
+                throw new Error(result.message);
+            }
             
-            // Show API warning if using demo data (all scores are round numbers)
-            const hasRoundNumbers = emotionData.some(emotion => {
+            // Show API warning if mock data was returned
+            const hasRoundNumbers = result.results.some(emotion => {
                 const score = emotion.score;
-                return score === 0.75 || score === 0.15 || score === 0.05 || 
-                       score === 0.03 || score === 0.01;
+                return [0.75, 0.15, 0.05, 0.03, 0.01].includes(score);
             });
             
             if (hasRoundNumbers) {
@@ -85,7 +82,9 @@
             
         } catch (error) {
             console.error('Error:', error);
-            // Use fallback mock data if API fails
+            alert("Error analyzing entry. Showing fallback data.");
+            
+            // Fallback mock data
             const mockData = [
                 {label: "joy", score: 0.65},
                 {label: "sadness", score: 0.20},
@@ -105,7 +104,7 @@
         const resultsContainer = document.getElementById('emotionResults');
         resultsContainer.innerHTML = '';
         
-        // Find the primary emotion (highest score)
+        // Find primary emotion
         let primaryEmotion = null;
         let maxScore = 0;
         
@@ -120,13 +119,11 @@
         emotionData.forEach(emotion => {
             const emotionItem = document.createElement('div');
             emotionItem.className = 'emotion-item';
-            
             if (emotion.label === primaryEmotion) {
                 emotionItem.classList.add('primary-emotion');
             }
             
             const scorePercent = Math.round(emotion.score * 100);
-            
             emotionItem.innerHTML = `
                 <div class="emotion-name">${emotion.label}</div>
                 <div class="emotion-score">${scorePercent}%</div>
@@ -134,154 +131,12 @@
                     <div class="progress-fill" style="width: ${scorePercent}%"></div>
                 </div>
             `;
-            
             resultsContainer.appendChild(emotionItem);
         });
         
-        // Show results container
+        // Show results
         document.getElementById('resultsContainer').style.display = 'block';
-        
-        // Scroll to results
-        document.getElementById('resultsContainer').scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
+        document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
     }
-    
-    document.getElementById('saveEntryBtn').addEventListener('click', async function() {
-        const journalText = document.getElementById('journalEntry').value.trim();
-        if (!journalText) {
-            alert('Please write something in your journal entry before saving');
-            return;
-        }
-        
-        try {
-            const response = await fetch('{{ url_for("save_entry") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    journalText: journalText
-                })
-            });
-            
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
-                    alert('Journal entry saved successfully!');
-                    document.getElementById('journalEntry').value = '';
-                    document.getElementById('resultsContainer').style.display = 'none';
-                    document.getElementById('apiWarning').style.display = 'none';
-                } else {
-                    throw new Error(result.message);
-                }
-            } else {
-                throw new Error('Failed to save journal entry');
-            }
-            
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error saving journal entry. Please try again.');
-        }
-    });
-
-    // Add CSS for journal page specific elements
-    const style = document.createElement('style');
-    style.textContent = `
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--light-gray);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .results-container {
-            margin-top: 30px;
-            display: none;
-        }
-        
-        .emotion-results {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .emotion-item {
-            background: var(--light);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            transition: var(--transition);
-        }
-        
-        .emotion-item:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--card-shadow);
-        }
-        
-        .emotion-name {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-        
-        .emotion-score {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .progress-bar {
-            height: 10px;
-            background: var(--light-gray);
-            border-radius: 5px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 5px;
-            transition: width 1s ease-in-out;
-        }
-        
-        .primary-emotion {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-        
-        .primary-emotion .emotion-name,
-        .primary-emotion .emotion-score {
-            color: white;
-        }
-        
-        .primary-emotion .progress-fill {
-            background: white;
-        }
-        
-        @media (max-width: 768px) {
-            .emotion-results {
-                grid-template-columns: 1fr;
-            }
-        }
-    `;
-    document.head.appendChild(style);
 </script>
 {% endblock %}

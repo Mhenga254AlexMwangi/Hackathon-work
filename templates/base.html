@@ -5,417 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MoodTracker - Emotional Wellness Journal{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --success: #4cc9f0;
-            --warning: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s ease;
-        }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: var(--dark);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header Styles */
-        .site-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .site-header .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 1.8rem;
-            color: var(--primary);
-        }
-
-        .brand a {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand i {
-            font-size: 1.5rem;
-        }
-
-        nav {
-            display: flex;
-            gap: 25px;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: var(--gray);
-            font-weight: 500;
-            padding: 8px 15px;
-            border-radius: 20px;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        nav a:hover, nav a.active {
-            color: var(--primary);
-            background: rgba(67, 97, 238, 0.1);
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 50%;
-            width: 0;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 10px;
-            transform: translateX(-50%);
-            transition: var(--transition);
-        }
-
-        nav a:hover::after, nav a.active::after {
-            width: 70%;
-        }
-
-        /* Main Content */
-        main {
-            flex: 1;
-            padding: 40px 0;
-        }
-
-        /* Card Styles */
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 30px;
-            transition: var(--transition);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.6s forwards;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        h2 {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            color: var(--secondary);
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-        }
-
-        /* Form Styles */
-        .form {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .mood-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            gap: 10px;
-        }
-
-        .mood-row label {
-            flex: 1;
-            text-align: center;
-            padding: 15px 10px;
-            border-radius: 12px;
-            background: var(--light);
-            cursor: pointer;
-            transition: var(--transition);
-            border: 2px solid transparent;
-        }
-
-        .mood-row label:hover {
-            background: rgba(67, 97, 238, 0.1);
-            transform: translateY(-3px);
-        }
-
-        .mood-row input[type="radio"] {
-            display: none;
-        }
-
-        .mood-row input[type="radio"]:checked + span {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .mood-row input[type="radio"]:checked ~ .mood-emoji {
-            transform: scale(1.2);
-        }
-
-        .mood-emoji {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 8px;
-            transition: var(--transition);
-        }
-
-        textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--light-gray);
-            border-radius: 12px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            margin-bottom: 25px;
-            transition: var(--transition);
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        /* Button Styles */
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-block;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        .btn:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn i {
-            margin-right: 8px;
-        }
-
-        /* Grid Layout */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
-        }
-
-        /* Feedback List */
-        .feedback-list {
-            list-style: none;
-        }
-
-        .feedback-list li {
-            padding: 20px;
-            border-radius: 12px;
-            background: var(--light);
-            margin-bottom: 15px;
-            transition: var(--transition);
-        }
-
-        .feedback-list li:hover {
-            transform: translateX(5px);
-            background: white;
-            box-shadow: var(--card-shadow);
-        }
-
-        .date {
-            font-size: 0.85rem;
-            color: var(--gray);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        /* Footer */
-        .site-footer {
-            background: var(--dark);
-            color: white;
-            padding: 30px 0;
-            margin-top: auto;
-        }
-
-        .site-footer .container {
-            text-align: center;
-        }
-
-        .site-footer p {
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* Animation Delays */
-        .card:nth-child(1) { animation-delay: 0.1s; }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        .card:nth-child(3) { animation-delay: 0.3s; }
-        .card:nth-child(4) { animation-delay: 0.4s; }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .site-header .container {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            nav {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-            }
-            
-            .mood-row {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            
-            .mood-row label {
-                flex: 1 0 calc(33.333% - 10px);
-            }
-            
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Chart Container */
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin: 20px 0;
-        }
-
-        /* Resource Links */
-        .resource-links {
-            list-style: none;
-        }
-
-        .resource-links li {
-            margin-bottom: 15px;
-            padding: 15px;
-            background: var(--light);
-            border-radius: 12px;
-            transition: var(--transition);
-        }
-
-        .resource-links li:hover {
-            background: white;
-            transform: translateX(5px);
-            box-shadow: var(--card-shadow);
-        }
-
-        .resource-links a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .resource-links a:hover {
-            color: var(--secondary);
-            text-decoration: underline;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
+      :root { --primary: #4361ee; --secondary: #3a0ca3; --success: #4cc9f0; --warning: #f72585; --light: #f8f9fa; --dark: #212529; --gray: #6c757d; --light-gray: #e9ecef; --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); --transition: all 0.3s ease; } * { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: var(--dark); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; } .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; } /* Header Styles */ .site-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); padding: 15px 0; position: sticky; top: 0; z-index: 100; } .site-header .container { display: flex; justify-content: space-between; align-items: center; } .brand { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.8rem; color: var(--primary); } .brand a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; } .brand i { font-size: 1.5rem; } nav { display: flex; gap: 25px; } nav a { text-decoration: none; color: var(--gray); font-weight: 500; padding: 8px 15px; border-radius: 20px; transition: var(--transition); position: relative; } nav a:hover, nav a.active { color: var(--primary); background: rgba(67, 97, 238, 0.1); } nav a::after { content: ''; position: absolute; bottom: -5px; left: 50%; width: 0; height: 3px; background: var(--primary); border-radius: 10px; transform: translateX(-50%); transition: var(--transition); } nav a:hover::after, nav a.active::after { width: 70%; } /* Main Content */ main { flex: 1; padding: 40px 0; } /* Card Styles */ .card { background: white; border-radius: 16px; padding: 30px; box-shadow: var(--card-shadow); margin-bottom: 30px; transition: var(--transition); opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s forwards; } .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); } @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } } h2 { font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--secondary); margin-bottom: 20px; font-size: 1.8rem; } /* Form Styles */ .form { max-width: 600px; margin: 0 auto; } label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark); } .mood-row { display: flex; justify-content: space-between; margin-bottom: 25px; gap: 10px; } .mood-row label { flex: 1; text-align: center; padding: 15px 10px; border-radius: 12px; background: var(--light); cursor: pointer; transition: var(--transition); border: 2px solid transparent; } .mood-row label:hover { background: rgba(67, 97, 238, 0.1); transform: translateY(-3px); } .mood-row input[type="radio"] { display: none; } .mood-row input[type="radio"]:checked + span { color: var(--primary); font-weight: 600; } .mood-row input[type="radio"]:checked ~ .mood-emoji { transform: scale(1.2); } .mood-emoji { font-size: 2rem; display: block; margin-bottom: 8px; transition: var(--transition); } textarea { width: 100%; padding: 15px; border: 2px solid var(--light-gray); border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 1rem; margin-bottom: 25px; transition: var(--transition); resize: vertical; min-height: 120px; } textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2); } /* Button Styles */ .btn { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: var(--transition); display: inline-block; text-decoration: none; text-align: center; } .btn:hover { background: var(--secondary); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); } .btn i { margin-right: 8px; } /* Grid Layout */ .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 20px; } /* Feedback List */ .feedback-list { list-style: none; } .feedback-list li { padding: 20px; border-radius: 12px; background: var(--light); margin-bottom: 15px; transition: var(--transition); } .feedback-list li:hover { transform: translateX(5px); background: white; box-shadow: var(--card-shadow); } .date { font-size: 0.85rem; color: var(--gray); margin-bottom: 8px; display: block; } /* Footer */ .site-footer { background: var(--dark); color: white; padding: 30px 0; margin-top: auto; } .site-footer .container { text-align: center; } .site-footer p { max-width: 800px; margin: 0 auto; line-height: 1.6; } /* Animation Delays */ .card:nth-child(1) { animation-delay: 0.1s; } .card:nth-child(2) { animation-delay: 0.2s; } .card:nth-child(3) { animation-delay: 0.3s; } .card:nth-child(4) { animation-delay: 0.4s; } /* Responsive Design */ @media (max-width: 768px) { .site-header .container { flex-direction: column; gap: 15px; } nav { flex-wrap: wrap; justify-content: center; gap: 10px; } .mood-row { flex-wrap: wrap; gap: 10px; } .mood-row label { flex: 1 0 calc(33.333% - 10px); } .grid { grid-template-columns: 1fr; } } /* Chart Container */ .chart-container { position: relative; height: 300px; margin: 20px 0; } /* Resource Links */ .resource-links { list-style: none; } .resource-links li { margin-bottom: 15px; padding: 15px; background: var(--light); border-radius: 12px; transition: var(--transition); } .resource-links li:hover { background: white; transform: translateX(5px); box-shadow: var(--card-shadow); } .resource-links a { color: var(--primary); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 10px; } .resource-links a:hover { color: var(--secondary); text-decoration: underline; } .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; } .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; } .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }  /* --- All your CSS kept as is --- */
     </style>
 </head>
 <body>
     <header class="site-header">
         <div class="container">
-            <h1 class="brand"><a href="{{ url_for('home') }}"><i class="fas fa-brain"></i> MoodTracker</a></h1>
+            <h1 class="brand">
+                <a href="{{ url_for('home') }}"><i class="fas fa-brain"></i> MoodTracker</a>
+            </h1>
             <nav>
-                <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}"><i class="fas fa-home"></i> Home</a>
-                <a href="{{ url_for('checkin') }}" class="{% if request.endpoint == 'checkin' %}active{% endif %}"><i class="fas fa-heart"></i> Mood Check-in</a>
-                <a href="{{ url_for('journal') }}" class="{% if request.endpoint == 'journal' %}active{% endif %}"><i class="fas fa-book-open"></i> Journal</a>
-                <a href="{{ url_for('feedback') }}" class="{% if request.endpoint == 'feedback' %}active{% endif %}"><i class="fas fa-comment-dots"></i> Feedback</a>
-                <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}"><i class="fas fa-chart-line"></i> Dashboard</a>
-                <a href="{{ url_for('tips') }}" class="{% if request.endpoint == 'tips' %}active{% endif %}"><i class="fas fa-lightbulb"></i> Coping Tips</a>
-                <a href="{{ url_for('logout') }}">Logout</a>
+                <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                
+                <!-- ✅ FIXED: Removed 'checkin' unless you add a route in app.py -->
+               {% if request.endpoint == 'checkin' %}
 
+                <a href="{{ url_for('checkin') }}" class="{% if request.endpoint == 'checkin' %}active{% endif %}">
+                    <i class="fas fa-heart"></i> Mood Check-in
+                </a>
+                {% endif %}
+
+                <a href="{{ url_for('journal') }}" class="{% if request.endpoint == 'journal' %}active{% endif %}">
+                    <i class="fas fa-book-open"></i> Journal
+                </a>
+                <a href="{{ url_for('feedback') }}" class="{% if request.endpoint == 'feedback' %}active{% endif %}">
+                    <i class="fas fa-comment-dots"></i> Feedback
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="{{ url_for('tips') }}" class="{% if request.endpoint == 'tips' %}active{% endif %}">
+                    <i class="fas fa-lightbulb"></i> Coping Tips
+                </a>
+                <a href="{{ url_for('logout') }}">Logout</a>
             </nav>
         </div>
     </header>
@@ -436,7 +64,10 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p><strong>Confidentiality Notice:</strong> This tool stores check-ins and feedback without names or emails. Do not share personal health information. For emergencies, contact local mental health hotlines.</p>
+            <p>
+                <strong>Confidentiality Notice:</strong> This tool stores check-ins and feedback without names or emails. 
+                Do not share personal health information. For emergencies, contact local mental health hotlines.
+            </p>
         </div>
     </footer>
 
