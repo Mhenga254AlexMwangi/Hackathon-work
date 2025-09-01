@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Home · MoodTracker{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Welcome to Moodflow</h2>
+    <p>Track your emotions, understand your patterns, and improve your mental wellbeing with our intuitive mood journal.</p>
+</div>
+
+<div class="grid">
+    <div class="card">
+        <h2><i class="fas fa-book-open"></i> Journal Entry</h2>
+        <p>Write about your day and get an emotional analysis powered by AI.</p>
+        <a class="btn" href="{{ url_for('journal') }}"><i class="fas fa-pen"></i> New Entry</a>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-heart"></i> Quick Check-in</h2>
+        <p>Quick daily check-in to notice stress early.</p>
+        <a class="btn" href="{{ url_for('checkin') }}"><i class="fas fa-check-circle"></i> Do a Check-in</a>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-comment-dots"></i> Anonymous Feedback</h2>
+        <p>Share concerns or suggestions safely and anonymously.</p>
+        <a class="btn" href="{{ url_for('feedback') }}"><i class="fas fa-paper-plane"></i> Leave Feedback</a>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-chart-line"></i> Mood Analytics</h2>
+        <p>See anonymous trends to guide wellbeing actions.</p>
+        <a class="btn" href="{{ url_for('dashboard') }}"><i class="fas fa-chart-bar"></i> Open Dashboard</a>
+    </div>
+</div>
+{% endblock %}

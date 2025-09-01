@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Anonymous Feedback · MoodTracker{% endblock %}
+{% block content %}
+<div class="card">
+    <h2><i class="fas fa-comment-dots"></i> Anonymous Feedback</h2>
+    <form class="form" id="feedbackForm">
+        <label for="message">Share your concern or suggestion (no names/emails please)</label>
+        <textarea id="message" name="message" rows="6" required placeholder="What's on your mind?"></textarea>
+        <button class="btn" type="submit"><i class="fas fa-paper-plane"></i> Send</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = {
+            message: formData.get('message')
+        };
+        
+        try {
+            const response = await fetch('{{ url_for("feedback") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Feedback submitted successfully!');
+                this.reset();
+            } else {
+                alert('Error submitting feedback: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting feedback');
+        }
+    });
+</script>
+{% endblock %}

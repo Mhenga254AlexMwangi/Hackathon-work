@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Mood Check-in · MoodTracker{% endblock %}
+{% block content %}
+<div class="card">
+    <h2><i class="fas fa-heart"></i> Mood Check-in</h2>
+    <form method="post" class="form" id="moodForm">
+        <label>How are you feeling today?</label>
+        <div class="mood-row">
+            <label>
+                <input type="radio" name="mood" value="1" required>
+                <span class="mood-emoji">😢</span>
+                <span>Very Sad</span>
+            </label>
+            <label>
+                <input type="radio" name="mood" value="2">
+                <span class="mood-emoji">😔</span>
+                <span>Sad</span>
+            </label>
+            <label>
+                <input type="radio" name="mood" value="3" checked>
+                <span class="mood-emoji">😐</span>
+                <span>Neutral</span>
+            </label>
+            <label>
+                <input type="radio" name="mood" value="4">
+                <span class="mood-emoji">🙂</span>
+                <span>Happy</span>
+            </label>
+            <label>
+                <input type="radio" name="mood" value="5">
+                <span class="mood-emoji">😄</span>
+                <span>Very Happy</span>
+            </label>
+        </div>
+
+        <label for="note">Optional note (what feels stressful?)</label>
+        <textarea id="note" name="note" rows="4" placeholder="E.g., heavy workload, unclear deadlines, personal issues"></textarea>
+
+        <button class="btn" type="submit"><i class="fas fa-check-circle"></i> Submit</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('moodForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = {
+            mood: formData.get('mood'),
+            journal: formData.get('note')
+        };
+        
+        try {
+            const response = await fetch('{{ url_for("checkin") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Mood entry saved successfully!');
+                this.reset();
+            } else {
+                alert('Error saving mood entry: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error saving mood entry');
+        }
+    });
+</script>
+{% endblock %}

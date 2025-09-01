@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · MoodTracker{% endblock %}
+{% block content %}
+<div class="card">
+    <h2><i class="fas fa-chart-line"></i> Stress Analytics Dashboard</h2>
+    
+    <div class="grid">
+        <div class="card">
+            <h3>Mood Distribution</h3>
+            <div class="chart-container">
+                <canvas id="moodChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Daily Check-ins (Last 7 days)</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Recent Feedback</h3>
+            {% if recent_feedback %}
+                <ul class="feedback-list">
+                    {% for f in recent_feedback %}
+                        <li>
+                            <span class="date">{{ f.created_at.strftime("%b %d, %Y %H:%M") }}</span>
+                            <p>{{ f.message }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No feedback yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mood Distribution Chart
+        const moodCtx = document.getElementById('moodChart').getContext('2d');
+        new Chart(moodCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Very Sad', 'Sad', 'Neutral', 'Happy', 'Very Happy'],
+                datasets: [{
+                    label: 'Entries',
+                    data: {{ mood_data | tojson }},
+                    backgroundColor: [
+                        '#f72585',
+                        '#ff6b6b',
+                        '#ffd166',
+                        '#06d6a0',
+                        '#118ab2'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Daily Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        
+        // Prepare trend data
+        const dates = {{ trend_data | map(attribute='date') | list | tojson }};
+        const moods = {{ trend_data | map(attribute='avg_mood') | list | tojson }};
+        
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Average Mood',
+                    data: moods,
+                    tension: 0.2,
+                    borderColor: '#4361ee',
+                    backgroundColor: 'rgba(67, 97, 238, 0.1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { 
+                    y: { 
+                        beginAtZero: false,
+                        min: 1,
+                        max: 5
+                    } 
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
